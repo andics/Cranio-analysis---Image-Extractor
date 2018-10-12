@@ -1,5 +1,5 @@
 function [] = tifToDicom(imageFolder)
-%Save a tif as a dicom
+%Save a a chosen region from a tif as a dicom
 
 tif_file = fullfile(imageFolder);
 

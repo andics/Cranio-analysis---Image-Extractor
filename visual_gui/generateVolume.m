@@ -20,11 +20,9 @@ size(surfaceFace)
 
 pSurface = patch('Faces',surfaceFace,'Vertices',surfaceVertex);       % draw the outside of the volume
 pSurface.FaceAlpha = 1;
-%pSurface.EdgeColor = 'none';
+pSurface.EdgeColor = 'none';
 pSurface.FaceColor = 'flat';
 pSurface.FaceVertexCData = surfaceColors;
-
-
 
 %{
 [insideFace, insideVertex, insideColor] = generateInside(volume, endLayerNum);
@@ -34,6 +32,7 @@ pInside.FaceColor = 'interp';
 pInside.EdgeColor = 'none';
 pInside.FaceAlpha = 1;
 %}
+
 
 setDisplaySettings(volume);
 

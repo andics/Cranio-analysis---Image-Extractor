@@ -22,16 +22,16 @@ imshow(bwImage, [])
 
 
 grayImage = imbinarize(imageFile, threshValue);
-grayImage = bwmorph(grayImage, 'thicken', 3);
-grayImage = bwmorph(grayImage, 'bridge', Inf);
 
 imageNoHoles = imageFillHoles(grayImage);
+%imageNoHoles = grayImage;
 createFigure("Image number %d BW - Thick - Bridge - FillHoles", i)
 imshow(imageNoHoles, [])
 
-imageEdges = contourslice(imageNoHoles)
+%{
 createFigure("Image number %d BW - Thick - Bridge - FillHoles - Contour Slice", i)
 imshow(imageEdges, [])
+%}
 
 
 

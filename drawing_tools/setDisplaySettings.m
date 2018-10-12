@@ -10,7 +10,7 @@ axis tight
 grid on;
 xlim(xDim)
 ylim(yDim)
-daspect([1,1,2])
+daspect([1,1,1])
 rotate3d on;
 colormap('gray');
 

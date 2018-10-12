@@ -1,6 +1,5 @@
 function [] = loadVoxelSize(scan_folder)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+%Display all tags of a tiff image
 
 imageFile = fullfile(scan_folder, 'cranium0520.tif')
 imageFile = Tiff(imageFile, 'r');
