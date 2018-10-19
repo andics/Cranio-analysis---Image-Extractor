@@ -1,9 +1,8 @@
-function [] = createFigure(title, passArgument)
-%UNTITLED10 Summary of this function goes here
-%   Detailed explanation goes here
+function [figHandle] = createFigure(title, passArgument)
+%Create a figure with a certain title
 
 str = sprintf(title, passArgument);
-figure("Name", str);
+figHandle = figure("Name", str);
 
 end
 

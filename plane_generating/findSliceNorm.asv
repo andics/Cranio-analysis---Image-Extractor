@@ -1,0 +1,36 @@
+function [sliceNorm] = findSliceNorm(sutureVect, pt, normVect)
+%Given the vector of a suture line on the surface and the normal vect at at
+%pt, generate a new normal, tangental to the surface and perpendicular to
+%the depth of the bone.
+%Also make sure that the generated normal is pointing upwards for 
+
+vectUp = [0 0 1];
+
+tempNorm = cross(sutureVect, normVect);
+tempNorm = tempNorm/norm(tempNorm);
+
+%Now take tempNorm and normVect to generate the actual normal of the slice
+
+sliceNorm = cross(tempNorm, normVect);
+sliceNorm = sliceNorm/norm(sliceNorm);
+
+normVect(1,:) = sliceNorm;
+normVect(2,:) = -sliceNorm;
+
+%Use the fact that the normal pointing upwards will have a smaller angle
+%with the vector [0 0 1]
+Alpha = 359; 
+
+for i=1:2
+CosAlpha = dot(vectUp,normVect(i,:)) / (norm(vectUp) * norm(normVect(i,:)));
+if acosd(CosAlpha)<Alpha
+Alpha = acosd(CosAlpha);
+normVect(3,:) = normVect(i,:);
+end
+end
+
+sliceNorm = normVect(3,:);
+
+
+end
+

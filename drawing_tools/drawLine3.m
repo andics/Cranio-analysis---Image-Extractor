@@ -7,7 +7,8 @@ xData = [point1(2), point2(2)];
 yData = [point1(1), point2(1)];
 zData = [point1(3), point2(3)];
 
-plot3(yData, xData, zData, 'r')
+p = plot3(yData, xData, zData, 'r');
+set(p, 'Tag', 'Line')
 
 hold off;
 

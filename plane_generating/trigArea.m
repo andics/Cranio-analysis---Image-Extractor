@@ -1,6 +1,6 @@
 function [Area] = trigArea(sides)
-%Get the area of a triangle with lenghts sides(:,:)
-%Use Heron's formula
+%Using Hero's formula to calculate the area of a triangle with sides
+%speciffied in sides
 
 lenghts = zeros(1,3);
 lenghts(1,1) = norm(sides(1,:));
