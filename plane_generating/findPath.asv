@@ -43,25 +43,24 @@ while reachedTarget==0
         reachedTarget = 1;
     end
     
-end
-visitedPoints = permute(visitedPoints ,[2 1]);
+end 
 
-
-
-suturePoints(size(visitedPoints, 1),1) = suture_point;
+suturePoints(1,size(visitedPoints, 1)) = suture_point;
 
 visitedPointsCord = surfaceVertex(visitedPoints,:);
 
-for i=1:size(suturePoints,1)
-    suturePoints(i,1).init(visitedPointsCord(i,:), visitedPoints(i, 1), skullFig, skullPatch, volumeMidPoint);
+sz = size(suturePoints( :))
+
+for i=1:size(suturePoints(:),1)
+    suturePoints(i).init(visitedPointsCord(i,:), visitedPoints(i, 1), skullFig, skullPatch, volumeMidPoint);
     i = i
-    if mod(i,20) == 0
-        suturePoints(i,1).setNeighbours(20)
+    if mod(i,30)
+        suturePoints(i).setNeighbours(20)
     end
 end
 
 colorPtIndex = find(arrayfun(@(suturePoints) ~isempty(suturePoints.neighbourTrRows),suturePoints));
-colorPtIndex = vertcat(suturePoints(colorPtIndex).neighbourTrRows);
+colorPtIndex = vertcat(suturePoints(colorPtIndex).neighbourTrRows)
 
 trColorize(skullPatch, colorPtIndex);
 

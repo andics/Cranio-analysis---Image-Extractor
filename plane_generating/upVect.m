@@ -1,11 +1,12 @@
 function [outputVect] = upVect(inputVect)
-%Transform a normal to be as close as possible from pointing upwards
+%Transform a vector to be as close as possible from pointing upwards
 vectUp = [0 0 1];
 
+normVect = zeros(3, 3);
 normVect(1,:) = inputVect;
 normVect(2,:) = -inputVect;
 
-%Use the fact that the normal pointing upwards will have a smaller angle
+%Use the fact that the vector pointing upwards will have a smaller angle
 %with the vector [0 0 1]
 Alpha = 359; 
 

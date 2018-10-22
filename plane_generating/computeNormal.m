@@ -39,6 +39,7 @@ normVect(3,:) = normVect(i,:);
 end
 end
 
+%Scale the normal vector according to the area of the triangle
 normVect = normVect(3,:);
 normVect = normVect*trigArea(trVect);
 
