@@ -4,7 +4,7 @@ function [imageBW] = imageBinarize(imageFile, colorThresh)
 
     imageBW = imbinarize(imageFile, colorThresh);
 
-    imageBW = bwmorph(imageBW, 'thicken', 3);
+  %  imageBW = bwmorph(imageBW, 'thicken', 3);
     imageBW = bwmorph(imageBW, 'bridge', Inf);
 
     imageBW = imageFillHoles(imageBW);

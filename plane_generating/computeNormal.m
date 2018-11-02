@@ -1,5 +1,5 @@
 function [C, normVect] = computeNormal(triangleXData, triangleYData, triangleZData, volumeMidPoint)
-%Determine the normal to each triangle which points outwards
+%Determine the normal to each triangle, such that it points outwards
 
 %Get vectors of triangle sides
 trVect = zeros(3,3);

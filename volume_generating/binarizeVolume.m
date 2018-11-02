@@ -1,6 +1,7 @@
-function [D] = binarizeVolume(D)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+function [D] = binarizeVolume(D, toSmooth)
+%Binarize the volume of images, as not much detail is needed on the Skull's
+%3d modell for the selection of the sutures. This saves a lot of resources
+%when generating the 3d skull model
 close all;
 
 image_num = round(size(D, 3)/2);
@@ -14,7 +15,11 @@ threshValue = calcGThresh(imageFile);
 for i=1:num_of_img
     i
     D(:,:,i) = imageBinarize(D(:,:,i), threshValue);
-end 
+end
+
+if nargin == 2
+   D = smooth3(D); 
+end
 
 figure; imshow(D(:,:,image_num), []);
 

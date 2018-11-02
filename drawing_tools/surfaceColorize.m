@@ -1,10 +1,8 @@
-function [surfaceColors] = surfaceColorize(F, mainColor, newColor)
-%UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
+function [surfaceColors] = surfaceColorize(F, mainColor)
+%Initialize a list of FaceVertexCData for the skull, to be able to color
+%specific points on the surface later on
 
-sizeF = size(F,1);
-newColorStart = round(sizeF/2);
-
+sizeF = size(F, 1);
 surfaceColors = zeros(sizeF, 3);
 
 for i=1:sizeF
@@ -12,13 +10,5 @@ for i=1:sizeF
     surfaceColors(i,:) = mainColor;
     
 end
-
-
-for i=newColorStart:newColorStart+100000
-   
-    surfaceColors(i,:) = newColor;
-    
-end
-
 end
 

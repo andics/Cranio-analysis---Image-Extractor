@@ -1,27 +1,21 @@
-function [skullFig, pSurface] = generateVolume(volume, volumeBW, endLayerNum)
+function [skullFig, pSurface] = generateVolume(volumeBW, endLayerNum)
 %Generate volume surface and inside and combine them
 
-imageFile = volume(:,:,round(endLayerNum/2));
-mainColor = [1 0.75 .65];
-newColor = [0 1 0];
-
-imshow(imageFile, [])
-xDim = xlim;
-yDim = ylim;
-
 skullFig = createFigure("Main Skull Figure", 0);
+mainColor = [1 .75 .65];
+if strcmp(endLayerNum, 'all')==1
+    endLayerNum = size(volumeBW, 3); 
+end
 
 [surfaceFace, surfaceVertex] = generateSurface(volumeBW, endLayerNum);
 
-surfaceColors = surfaceColorize(surfaceFace, mainColor, newColor);
-size(surfaceColors)
-size(surfaceFace)
+cData = surfaceColorize(surfaceFace, mainColor);
 
 pSurface = patch('Faces',surfaceFace,'Vertices',surfaceVertex);       % draw the outside of the volume
 pSurface.FaceAlpha = 1;
 pSurface.EdgeColor = 'none';
 pSurface.FaceColor = 'flat';
-pSurface.FaceVertexCData = surfaceColors;
+pSurface.FaceVertexCData = cData;
 pSurface.SpecularColorReflectance = 0.5;
 pSurface.SpecularStrength = 0.3;
 
@@ -35,7 +29,7 @@ pInside.FaceAlpha = 1;
 %}
 
 
-setDisplaySettings(volume);
+setDisplaySettings(volumeBW);
 
 end
 

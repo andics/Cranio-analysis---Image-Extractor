@@ -1,4 +1,4 @@
-function [] = trColorize(skullPatch, trRows)
+function [] = trColorize(skullPatch, trRows, newColor)
 %Colorize a set of triangle rows in the FaceVertexCData
 %Usually used to color lines on the skull's surface. 
 %Lines can also be drawn be individually coloring each point along the line,
@@ -7,7 +7,6 @@ function [] = trColorize(skullPatch, trRows)
 %all.
 
 skullPatch = handle(double(skullPatch));
-newColor = [0 0 1];
 
 colorData = skullPatch.FaceVertexCData;
 

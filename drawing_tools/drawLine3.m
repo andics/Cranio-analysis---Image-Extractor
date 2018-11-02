@@ -1,4 +1,4 @@
-function [] = drawLine3(point1, point2)
+function [p] = drawLine3(point1, point2)
 %Draw a line between 2 points in a 3d space
 
 hold on;
