@@ -27,6 +27,7 @@ end
 if numOfFiles == 1
     order = strcat(fileread(fullfile(imageFolder, txt_files(1).name)));
     if strcmp(order, 'descending')==1
+       addpath(imageFolder);
        return;
   
     elseif strcmp(order, 'ascending')==1

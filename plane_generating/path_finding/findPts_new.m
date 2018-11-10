@@ -1,8 +1,13 @@
 function [suturePoints] = findPts_new(cursorData, skullFig, skullPatch, numOfPics, radius)
-%Use A* search algorithm to find verticies of the graph describing the shortest path
-%between the two ends of the suture. Use those points to
-%generate equally spaced points with normals along the lenght of the suture
+%Use a geometric path finding approach to find a suture path.
+%Generate equally spaced points with normals along the lenght of the suture
+%Works with an unlimited number of suture defining points
+
 tic;
+
+%How many surrounding points should be considered to generate the surface
+%normal at a particular point
+neighboursNorm = 20;
 
 skullPatch = handle(double(skullPatch));
 surfaceFace = skullPatch.Faces;
@@ -28,10 +33,10 @@ daspect([1,1,1])
 rotate3d on;
 
 
+
 %Make sure the path finding never decides to start going in the
 %opposite to the end point direction, only because the smallest angle
 %vector is in that direction
-minZInter = Inf(1);
 minDist = Inf(1);
 activateBruteThePathDestroyer = 0;
 indexOfStartPoint = 1;
@@ -46,8 +51,10 @@ while reachedTarget==0
     linePointStart = surfacePoints(indexOfStartPoint,1:3);
     linePointEnd = surfacePoints(indexOfStartPoint+2,1:3);
     [~, currentPerpIntersec, currentPerpVect] = genPerp(surfacePoints(indexOfStartPoint,:),...
-        surfacePoints(indexOfStartPoint+2,:), surfacePoints(indexOfStartPoint+1,:));
+        surfacePoints(indexOfStartPoint+2,:), surfacePoints(indexOfStartPoint+1,:), 1);
     changeStartEndPoint = 0;
+    %Orientation of the current path line
+    normFootDistLineEnd = pdist([currentPerpIntersec; linePointEnd])
     minDistLineEnd = Inf(1);
     disp(['Index of new line starting point: ', num2str(indexOfStartPoint)]);
     end
@@ -57,7 +64,7 @@ while reachedTarget==0
 
     for i=1:size(connectedVertices, 1)
         currentDist = pdist([surfaceVertex(connectedVertices(i,1),:); surfaceVertex(endPoint,:)]);
-        [isOnLine, ptInter, compareVector] = genPerp(linePointStart, linePointEnd, surfaceVertex(connectedVertices(i,1),:));
+        [isOnLine, ptInter, compareVector] = genPerp(linePointStart, linePointEnd, surfaceVertex(connectedVertices(i,1),:), 1);
         currentDistLineEnd = pdist([surfaceVertex(connectedVertices(i,1),:); linePointEnd]);
         CosAlpha = dot(currentPerpVect,compareVector) / (norm(currentPerpVect) * norm(compareVector));
         Alpha = acosd(CosAlpha);
@@ -84,9 +91,11 @@ while reachedTarget==0
     disp(['Angle of chosen point: ', num2str(minAlpha)]);
    
     visitedPoints = [visitedPoints, currentPoint];
+    pathEndDist = pdist([chosenPointPtInter; linePointEnd]);
    
     %Make sure to change the start end point once the perp point is reached
-    if chosenPointPtInter(3) < currentPerpIntersec(3)
+    %if chosenPointPtInter(3) < currentPerpIntersec(3)
+    if normFootDistLineEnd > pathEndDist
         changeStartEndPoint = 1;
         indexOfStartPoint = indexOfStartPoint + 1;
     end
@@ -115,7 +124,7 @@ for i=1:numel(imgPtIndex)
     disp(['Generating plane number: ', num2str(i)]);
     index = imgPtIndex(i);
     suturePoints(i,1).init(visitedPointsCord(index,:), visitedPoints(index, 1), skullFig, skullPatch, volumeMidPoint);
-    suturePoints(i,1).setNeighbours(20);
+    suturePoints(i,1).setNeighbours(neighboursNorm);
     suturePoints(i,1).calcNormal(suturePointStart, suturePointEnd);
     suturePoints(i,1).genSlicePlane(radius);
 end

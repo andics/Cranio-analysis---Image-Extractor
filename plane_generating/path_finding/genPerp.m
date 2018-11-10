@@ -1,4 +1,4 @@
-function [isOnLine, xInter, perpVect] = genPerp(startPt, endPt, perpPoint)
+function [isOnLine, xInter, perpVect] = genPerp(startPt, endPt, perpPoint, drawLine)
 %Generate a vector to a point, perpendicular to the suture vector
 %Return 1 if the intersection point belongs to the line, and 0 if it
 %doesn't
@@ -16,8 +16,10 @@ xInter = startPt + (endPt - startPt)*t;
 
 perpVect = perpPoint - xInter;
 
-drawLine3(startPt, endPt);
-drawLine3(xInter, xInter + perpVect);
+if drawLine == 1
+drawLine3(startPt, endPt, [0 1 0], 2);
+drawLine3(xInter, xInter + perpVect, [0 1 1], 2);
+end
 
 perpVect = perpVect/norm(perpVect);
 

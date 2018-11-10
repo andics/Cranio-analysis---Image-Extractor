@@ -1,6 +1,5 @@
 function [Volume, assoc_list] = tiff_read_volume(imageFolder, startImage, endImage, rescalingFactorDepth, rescalingFactorImage)
 %Function for reading volume of Tif files
-%If there is not order argument set, the dataset is assumed
 
 [tif_files, imageFolder] = getDatasetOrder(imageFolder);
 numOfFiles = size(tif_files,1);

@@ -4,14 +4,16 @@ classdef suture < handle
     properties
         suture_points
         label
-        save_folder
+        export_folder
+        scan_folder
     end 
     
     methods
-        function obj = suture(cursorData, label, save_folder, skullFig, skullPatch, numOfPics, radius)
+        function obj = suture(cursorData, label, scan_folder, export_folder, skullFig, skullPatch, numOfPics, radius)
             %Initialization
             obj.label = label;
-            obj.save_folder = fullfile(save_folder,label);
+            obj.scan_folder = scan_folder;
+            obj.export_folder = fullfile(export_folder,label);
             obj.verifyExpFolder;
             obj.suture_points = findPts_new(cursorData, skullFig, skullPatch, numOfPics, radius);
          %  obj.digitKeeper = join('%0', , '.f')
@@ -46,8 +48,15 @@ classdef suture < handle
             slicePlaneY = obj.suture_points(ptIndex).slicePlaneY + ptYCord * (1/scale_factor);
             slicePlaneZ = obj.suture_points(ptIndex).slicePlaneZ + volumeIndex;
             
+            minZPlane = min(slicePlaneZ(:));
+            fprintf(join(['Slice lowest Z value in provided volume: ', num2str(minZPlane), '\n \n']));
+            szVol = size(volume)
+            
+            tic;
             sliceImg = interp3(volume, slicePlaneX, slicePlaneY,...
-            slicePlaneZ, 'cubic');
+            slicePlaneZ, 'cubic', 0);
+            toc;
+            
             sliceImg = mat2gray(sliceImg);
             obj.exportSliceImg(sliceImg, ptIndex);
             
@@ -56,10 +65,10 @@ classdef suture < handle
         end
         
         
-        function obj = generateSingleImg(obj, scan_folder, assoc_list, scale_factor, ptIndex) 
+        function obj = generateSingleImg(obj, assoc_list, scale_factor, ptIndex) 
             fprintf(join(['Starting single image generation of point ', num2str(ptIndex), ', from ', obj.label, ' suture\n']));
             
-            [tif_files,~] = getDatasetOrder(scan_folder);
+            [tif_files,~] = getDatasetOrder(obj.scan_folder);
             tif_names = {tif_files.name};
             tif_names = string(tif_names);
             tif_names = permute(tif_names, [2 1]);
@@ -68,14 +77,15 @@ classdef suture < handle
             objImg = objImg.read();
             volToAdd = 0;
             max_vol_lim = 433;
+            ES = 5;
             
             planeCenterImg = getZImg(obj.suture_points(ptIndex).ptCord(3), assoc_list);
-            centerImgIndex = find(strcmp(tif_names(:,1),planeCenterImg));
+            [centerImgIndex, ~] = find(strcmp(tif_names(:,1),planeCenterImg));
             
             %Top is a smaller image index than bottom, because volume is
             %assumed to be starting from the top slice
-            topImgIndex = floor(centerImgIndex - obj.suture_points(ptIndex).planeZMax - 5);
-            bottomImgIndex = ceil(centerImgIndex + obj.suture_points(ptIndex).planeZMax + 5);
+            topImgIndex = floor(centerImgIndex - obj.suture_points(ptIndex).planeZMax - ES);
+            bottomImgIndex = ceil(centerImgIndex + obj.suture_points(ptIndex).planeZMax + ES);
             
             if topImgIndex < 1
                %If the image plane goes outside the volume provided by the dataset,
@@ -85,7 +95,7 @@ classdef suture < handle
                ' more images full of black color! \n']));
                topImgIndex = 0;
             end
-               volToAdd = zeros(size(objImg, 1), size(objImg,2 ), volToAdd);
+
                maxVolHeight = floor(findMaxZ(objImg)*(2/3));
                if maxVolHeight > max_vol_lim
                    maxVolHeight = max_vol_lim; 
@@ -93,23 +103,20 @@ classdef suture < handle
                fprintf(join(['Max height of volume chunk: ', num2str(maxVolHeight), '\n']));
                
             
-            if maxVolHeight < bottomImgIndex - topImgIndex + size(volToAdd, 3)
+            if maxVolHeight < bottomImgIndex - topImgIndex + volToAdd
                 str = ['Not enough RAM memory to load point number ', num2str(ptIndex), ' from the ',... 
                     obj.label, ' suture.'];
-                strRAM = ['RAM for ', num2str((bottomImgIndex - topImgIndex + size(volToAdd,3)) - maxVolHeight),...
+                strRAM = ['RAM for ', num2str(bottomImgIndex - topImgIndex + volToAdd - maxVolHeight),...
                     ' more pictures is needed!'];
                 disp(str);
                 disp(strRAM);
                 return;
             end
             
-            [volume, assoc_list_new] = tiff_read_volume(scan_folder, bottomImgIndex, topImgIndex, 1, 1);
-            if size(volToAdd, 3) ~= 0
-            volume = cat(3, volToAdd, volume);
-            end
+            [volume, assoc_list_new] = tiff_read_volume(obj.scan_folder, bottomImgIndex, topImgIndex, 1, 1);
 
-            loadedStartImg = str2double(assoc_list_new(1,1));
-            loadedEndImg = str2double(assoc_list_new(end,1)) + size(volToAdd, 3);
+            fprintf(join(['Passed starting image:', assoc_list_new(1,2), '\n']));
+            fprintf(join(['Passed end image: ', assoc_list_new(end, 2), '\n']));
             
             index = find(assoc_list_new(:,2) == planeCenterImg);
             obj.genSliceImg(volume, scale_factor, ptIndex, index);
@@ -119,22 +126,26 @@ classdef suture < handle
         
         
         function obj = verifyExpFolder(obj)
-            if ~exist(obj.save_folder, 'dir')
-              mkdir(obj.save_folder);
+            if ~exist(obj.export_folder, 'dir')
+              mkdir(obj.export_folder);
             end
         end
         
         function obj = exportSliceImg(obj, img, ptIndex)
             imgName = [obj.label, num2str(ptIndex, '%04.f'), '.png'];
-            imwrite(img, fullfile(obj.save_folder, imgName));
+            imwrite(img, fullfile(obj.export_folder, imgName));
             
             fprintf(join(['\nExported image: ', imgName, ' \n \n']));
         end 
         
-        function obj = resetGeneratedImages(obj)
+        function [] = resetGeneratedImages(obj, index)
+          if nargin < 2
            for i=1:size(obj.suture_points, 1)
                obj.suture_points(i).imgLoaded = 0;
            end
+          else
+              obj.suture_points(index).imgLoaded = 0;
+          end
         end
     end
 end

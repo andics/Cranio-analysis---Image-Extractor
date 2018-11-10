@@ -1,5 +1,7 @@
-function [normVect, vectObj] = drawNormal(skullFig, skullPatch, pt)
+function [normVect, vectObj] = drawNormal(skullFig, skullPatch, pt, c)
 %Draws the normal to the surface at a particular point
+%Also displays the triangulated mesh around the point with the
+%corresponding normals to each triangle
 
 skullPatch = handle(double(skullPatch));
 
@@ -34,7 +36,7 @@ numTriangle = numTriangle + 1;
 end
 end
 
-%{
+
 figure;
 
 
@@ -43,7 +45,7 @@ axis tight
 grid on;
 daspect([1,1,1])
 rotate3d on;
-%}
+
 
 
 %setDisplaySettings(volume)
@@ -55,11 +57,11 @@ for i=1:size(triangleCord,1)
     triangleXData = triangleCord(i,:,1);
     triangleYData = triangleCord(i,:,2);
     triangleZData = triangleCord(i,:,3);
-   % hold on;
+    hold on;
 
-   % trisurf([1 2 3], triangleXData, triangleYData, triangleZData, 'FaceColor', [1 0.75 0.45], 'EdgeColor', 'r');
+    trisurf([1 2 3], triangleXData, triangleYData, triangleZData, 'FaceColor', [1 0.75 0.45], 'EdgeColor', 'r');
     [C, normVect(i,:)] = computeNormal(triangleXData, triangleYData, triangleZData, volumeMidPoint);
-   % drawLine3(C, C + normVect(i,:));
+    drawLine3(C, C + normVect(i,:));
 %{
     hold on;
     arrow3(C,C + normVect,'b',0.8);
@@ -70,7 +72,7 @@ end
 normVect = sum(normVect);
 normVect = normVect/norm(normVect);
 drawOnFig(skullFig);
-vectObj = arrow3(pt, pt + 40*normVect);
+vectObj = arrow3(pt, pt + 40*normVect, c);
 set(vectObj, 'Tag', 'Normal Vector');
 
 end

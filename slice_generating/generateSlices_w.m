@@ -11,7 +11,7 @@ tif_names = permute(tif_names, [2 1]);
 
 obj = Tiff(tif_files(1).name,'r');
 obj = obj.read();
-max_vol_lim = 269;
+max_vol_lim = 433;
 %How many extract images to add to the boudrries of the slice.
 %This is useful for interpolation, as  it needs some data outside the
 %desired values to interpolate better.
@@ -57,7 +57,7 @@ fprintf(join(['Highest unloaded plane found at point: ', num2str(maxZVal), '\n']
 %Find the index corresponding to the top of the slice plane
 %Load pictures from there to as much as possible downwards
 endImg = find(strcmp(tif_names(:,1),planeCenterImg));
-endImg = floor(endImg - maxPlaneZVal - ES - 1);
+endImg = floor(endImg - maxPlaneZVal - 5);
 if endImg < 0
    %If the image plane goes outside the volume provided by the dataset,
    %artificially add a volume chunk full of zeros at the top
@@ -66,6 +66,7 @@ if endImg < 0
        ' more images full of black color! \n']));
    endImg = 0;
 end
+volToAdd = zeros(size(obj, 1), size(obj,2 ), volToAdd);
 
 %Determine the maximum size of the volume chunk that can be loaded at the
 %moment
@@ -80,11 +81,10 @@ startImg = endImg + maxVolHeight;
 if startImg > size(tif_names,1)
    startImg = size(tif_names,1)-1;
 end
-
-if (startImg - endImg + volToAdd) < ceil(maxPlaneZVal*2 + 2*ES)
+if (startImg - endImg + size(volToAdd,3) - 5) < maxPlaneZVal*2
     str = ['Not enough RAM memory to load point number ', num2str(currentPoint), ' from the ',... 
         sutures(currentSuture).label, ' suture. \n Moving to next point'];
-    strRAM = ['RAM for ', num2str(ceil(maxPlaneZVal*2-(startImg - endImg - ES))), ' more pictures is needed!'];
+    strRAM = ['RAM for ', num2str(ceil(maxPlaneZVal*2-(startImg - endImg - 5))), ' more pictures is needed!'];
     sutures(currentSuture).suture_points(currentPoint).imgLoaded = 2;
     disp(str);
     disp(strRAM);
@@ -92,9 +92,12 @@ if (startImg - endImg + volToAdd) < ceil(maxPlaneZVal*2 + 2*ES)
 end
 
 [volume, assoc_list_new] = tiff_read_volume(scan_folder, startImg, endImg, 1, 1);
+if size(volToAdd, 3) ~= 0
+volume = cat(3, volToAdd, volume);
+end
 
 loadedStartImg = str2double(assoc_list_new(1,1));
-loadedEndImg = str2double(assoc_list_new(end,1)) + volToAdd;
+loadedEndImg = str2double(assoc_list_new(end,1)) + size(volToAdd, 3);
 
 
 for i=1:numel(sutures)
@@ -106,33 +109,24 @@ for i=1:numel(sutures)
                 fprintf(['Image center loaded for point ', num2str(j), ' from ',...
                 sutures(i).label, ' suture.', ' Checking if the whole slice can be generated.', '\n']);
                 fprintf(join(['Loaded starting image:', assoc_list_new(loadedStartImg,2), '\n']));
-                fprintf(join(['Loaded end image: ', assoc_list_new(loadedEndImg-volToAdd, 2), '\n']));
+                fprintf(join(['Loaded end image: ', assoc_list_new(loadedEndImg-size(volToAdd, 3),2), '\n']));
                 fprintf(join(['Current point center image: ', planeCenterImg, '\n']));
                 fprintf(sprintf('Image one-sided height: %0.4f', sutures(i).suture_points(j).planeZMax));
                 fprintf('\n \n');
             
-            if sutures(i).suture_points(j).planeZMin + index - ES - 1 >=  loadedStartImg && sutures(i).suture_points(j).planeZMax + index + ES - 1 <= loadedEndImg
-                planeZMax = sutures(i).suture_points(j).planeZMax;
-                minZToLoad = floor(index - planeZMax - ES - 1)
-                maxZToLoad = ceil(index + planeZMax + ES - 1)
-                if maxZToLoad > size(volume, 3)
-                   maxZToLoad = size(volume, 3);
-                end
-
-                indexToAdd = index - (minZToLoad - 1);
+                planeZData = sutures(i).suture_points(j).slicePlaneZ + index;    
+            if sutures(i).suture_points(j).planeZMin + index - ES >=  loadedStartImg && sutures(i).suture_points(j).planeZMax + index + ES <= loadedEndImg
                 fprintf(join(['Generating slice with image number ', num2str(j), ' from ', sutures(i).label, ' suture.\n']));
-                fprintf(join(['Passed starting image:', assoc_list_new(minZToLoad,2), '\n']));
-                fprintf(join(['Passed end image: ', assoc_list_new(maxZToLoad, 2), '\n']));
-                fprintf('\n');
-                
-                sutures(i).genSliceImg(volume(:,:,minZToLoad:maxZToLoad), scale_factor, j, indexToAdd);
+                fprintf('\n \n');
+                tic;
+                sutures(i).genSliceImg(volume, scale_factor, j, index);
+                toc;
             end  
         end
         end
     end
 end
-clearvars('-except', 'tif_files', 'tif_names', 'obj', 'scan_folder', 'scale_factor', 'assoc_list',...
-    'sutures', 'max_vol_lim', 'ES');
+clearvars('-except', 'tif_files', 'tif_names', 'obj', 'scan_folder', 'scale_factor', 'assoc_list', 'sutures', 'max_vol_lim');
 end
 end
 

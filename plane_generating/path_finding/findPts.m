@@ -1,7 +1,8 @@
 function [suturePoints] = findPts(cursorData, skullFig, skullPatch, numOfPics, radius)
-%Use A* search algorithm to find verticies of the graph describing the shortest path
-%between the two ends of the suture. Use those points to
-%generate equally spaced points with normals along the lenght of the suture
+%Use a geometric path finding approach to find a suture path.
+%Generate equally spaced points with normals along the lenght of the suture
+%Works with three suture defining points
+
 tic;
 
 skullPatch = handle(double(skullPatch));
