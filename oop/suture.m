@@ -76,7 +76,7 @@ classdef suture < handle
             objImg = Tiff(tif_files(1).name,'r');
             objImg = objImg.read();
             volToAdd = 0;
-            max_vol_lim = 433;
+            max_vol_lim = 311;
             ES = 5;
             
             planeCenterImg = getZImg(obj.suture_points(ptIndex).ptCord(3), assoc_list);
@@ -95,6 +95,8 @@ classdef suture < handle
                ' more images full of black color! \n']));
                topImgIndex = 0;
             end
+            
+               fprintf('Height of slice is %i \n', abs(bottomImgIndex - topImgIndex));
 
                maxVolHeight = floor(findMaxZ(objImg)*(2/3));
                if maxVolHeight > max_vol_lim
@@ -103,10 +105,10 @@ classdef suture < handle
                fprintf(join(['Max height of volume chunk: ', num2str(maxVolHeight), '\n']));
                
             
-            if maxVolHeight < bottomImgIndex - topImgIndex + volToAdd
+            if maxVolHeight < bottomImgIndex - topImgIndex
                 str = ['Not enough RAM memory to load point number ', num2str(ptIndex), ' from the ',... 
                     obj.label, ' suture.'];
-                strRAM = ['RAM for ', num2str(bottomImgIndex - topImgIndex + volToAdd - maxVolHeight),...
+                strRAM = ['RAM for ', num2str(bottomImgIndex - topImgIndex - maxVolHeight),...
                     ' more pictures is needed!'];
                 disp(str);
                 disp(strRAM);
@@ -132,7 +134,7 @@ classdef suture < handle
         end
         
         function obj = exportSliceImg(obj, img, ptIndex)
-            imgName = [obj.label, num2str(ptIndex, '%04.f'), '.png'];
+            imgName = [obj.label, num2str(ptIndex, '%04.f'), '.jpg'];
             imwrite(img, fullfile(obj.export_folder, imgName));
             
             fprintf(join(['\nExported image: ', imgName, ' \n \n']));

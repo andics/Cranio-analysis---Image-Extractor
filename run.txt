@@ -1,0 +1,15 @@
+scan_folder = 'q:\Projects\Improving resolution - medicine\Matlab\Image_Extractor\Datasets\3512\';
+export_folder = 'q:\Projects\Improving resolution - medicine\Matlab\Image_Extractor\Exported\3512\';
+%Constant
+scale_factor = 0.25;
+
+[volume, assoc_list] = tiff_read_volume(scan_folder, 'max', 0, scale_factor, scale_factor);
+volumeBW = binarizeVolume(volume, 'smooth');
+[skullFig, skullPatch] = generateVolume(volumeBW, 'all');
+
+sgt = suture(sgt_cursor, 'sagittal', scan_folder, export_folder, skullFig, skullPatch, 350, 191.5);
+crn_left = suture(crn_left_cursor, 'crn_left', scan_folder, export_folder, skullFig, skullPatch, 250, 191.5);
+crn_right = suture(crn_right_cursor, 'crn_right', scan_folder, export_folder, skullFig, skullPatch, 250, 191.5);
+sutures = [crn_left, crn_right, sgt]';
+
+generateSlices(scan_folder, scale_factor, assoc_list, sutures);

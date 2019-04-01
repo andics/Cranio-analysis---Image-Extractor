@@ -1,4 +1,4 @@
-function [] = generateSlices(scan_folder, scale_factor, assoc_list, sutures)
+function [] = generateSlices_w(scan_folder, scale_factor, assoc_list, sutures)
 %Generate slices for all of the sutures and export the generated images
 %The strategy is to start from the top and to generate all of the slices
 %contained in the currently loaded chunk of the volume. Generating the

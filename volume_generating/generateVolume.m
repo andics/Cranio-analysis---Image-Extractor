@@ -16,7 +16,7 @@ pSurface.FaceAlpha = 1;
 pSurface.EdgeColor = 'none';
 pSurface.FaceColor = 'flat';
 pSurface.FaceVertexCData = cData;
-pSurface.SpecularColorReflectance = 0.5;
+pSurface.SpecularColorReflectance = 0.2;
 pSurface.SpecularStrength = 0.3;
 
 %{
